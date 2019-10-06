@@ -1,0 +1,39 @@
+  PID TTY          TIME CMD
+ 1935 pts/8    00:00:00 bash
+ 2708 pts/8    00:00:00 make
+ 2711 pts/8    00:00:05 logcat
+ 2723 pts/5    00:00:00 make
+ 2733 ?        00:00:02 a.out
+ 2734 ?        00:00:02 a.out
+ 3768 ?        00:00:00 aterm
+ 3769 pts/2    00:00:33 w3m
+ 3789 ?        00:00:00 aterm
+ 3791 pts/9    00:00:00 bash
+ 7584 pts/11   00:00:00 bash
+ 9243 ?        00:00:05 postgres
+ 9248 ?        00:00:00 postgres
+ 9249 ?        00:00:02 postgres
+ 9250 ?        00:00:02 postgres
+ 9251 ?        00:00:05 postgres
+ 9252 ?        00:00:13 postgres
+ 9253 ?        00:00:00 postgres
+12934 pts/0    00:00:00 bash
+12948 pts/0    00:00:00 tmux: client
+12949 pts/5    00:00:00 bash
+12961 pts/7    00:00:00 bash
+12966 pts/7    00:00:44 w3m
+20327 pts/11   00:00:00 ps
+22192 ?        00:01:48 httpd
+22195 ?        00:00:02 httpd
+22196 ?        00:00:02 httpd
+22200 ?        00:00:03 httpd
+22209 ?        00:00:02 httpd
+23323 ?        02:18:39 proot
+24495 ?        00:02:36 tmux: server
+24496 pts/1    00:00:00 bash
+24498 pts/4    00:00:00 bash
+24503 pts/1    00:00:25 w3m
+26689 ?        00:00:02 httpd
+31421 ?        00:00:00 sshd
+31644 ?        00:00:14 Xvnc
+32491 ?        00:00:04 fluxbox
