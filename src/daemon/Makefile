@@ -1,10 +1,10 @@
 OS=$(shell $(CXX) -dumpmachine)
 ifneq (,$(findstring mingw,$(OS)))
 SOEXT?=dll
-BINEXT?=exe
+BINEXT?=.exe
 else
 SOEXT?=so
-BINEXT?=out
+BINEXT?=
 endif
 ifeq ($(PREFIX),)
 PREFIX := /usr/local
@@ -13,7 +13,8 @@ CC=gcc
 CXX=g++
 AR=ar
 BUILDDIR=./bin/build
-BIN=./bin/a.$(BINEXT)
+BINNAM=daemon
+BIN=./bin/$(BINNAM)$(BINEXT)
 SRCDIR=src
 SRC:=$(shell find $(SRCDIR) -name '*.c')
 OBJS:=$(addprefix $(BUILDDIR)/,$(SRC:%.c=%.o))
