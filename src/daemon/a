@@ -1,0 +1,28 @@
+#!/bin/bash
+case "$1" in
+start)
+	#double spawning issue...
+	#v000
+	#./bin/daemon&echo $!>/var/run/daemon.pid
+	#v001
+	./bin/daemon&
+	var/run/daemon.pid<$!
+	cat /var/run/daemon.pid
+;;
+status)
+	echo status
+;;
+stop)
+	echo stop
+	kill -TERM -`cat /var/run/daemon.pid`
+	#pkill daemon
+;;
+restart)
+	echo restart
+        $0 stop
+        $0 start
+;;
+*)
+        echo "Usage: $0 {status|start|stop|restart}"
+        exit 1
+esac
