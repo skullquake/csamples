@@ -7,6 +7,6 @@ $(BIN): $(SRC)
 	run\
 	clean
 run: $(BIN)
-	$(BIN)
+	$(BIN) 10 10
 clean:
 	rm $(BIN)

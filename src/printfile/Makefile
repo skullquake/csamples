@@ -6,7 +6,7 @@ $(BIN): $(SRC)
 .phony:\
 	run\
 	clean
-run: $(BIN)
-	$(BIN)
+run:
+	$(BIN) ./res/a.txt
 clean:
 	rm $(BIN)

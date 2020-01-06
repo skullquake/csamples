@@ -1,8 +1,12 @@
 CC=gcc
-SRC=./src/a.c
+SRC=./src/a.c ./src/getch.c
+CFLAGS=-I./include
 BIN=./bin/a.out
 $(BIN): $(SRC)
-	$(CC) $(SRC) -o $(BIN)
+	$(CC)\
+		$(CFLAGS)\
+		$(SRC)\
+		-o $(BIN)
 .phony:\
 	run\
 	clean

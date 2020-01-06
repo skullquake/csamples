@@ -6,7 +6,7 @@ $(BIN): $(SRC)
 .phony:\
 	run\
 	clean
-run: $(BIN)
+run:
 	$(BIN)
 clean:
 	rm $(BIN)
