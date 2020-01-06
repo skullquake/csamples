@@ -1,5 +1,8 @@
 #include<stdio.h>
 #include"getch.h"
+/*
+ * getch echoes to stdout and gets character input
+ */
 #define BUFSTRD 8
 int main(int argc,char** argv){
 	{
@@ -17,7 +20,7 @@ int main(int argc,char** argv){
 		fprintf(stdout,"Input [q to quit]:\n");
 		if(buf!=NULL){
 			do{
-				cInput=getch();
+				cInput=getche();
 				if(idx>bufSz-1){
 					bufSz+=BUFSTRD;
 					fprintf(stdout,"\nReallocating..[%d]\n",bufSz);

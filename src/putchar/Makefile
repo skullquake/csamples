@@ -2,8 +2,7 @@ CC=gcc
 CFLAGS=\
 	-I./include
 SRC=\
-	./src/a.c\
-	./src/getch.c
+	./src/a.c
 BIN=./bin/a.out
 $(BIN): $(SRC)
 	$(CC)\
