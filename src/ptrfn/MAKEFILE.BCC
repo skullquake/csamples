@@ -11,5 +11,5 @@ $(OBJ): $(SRC)
 	$(CC) -c -n$(BINDIR) $(SRC)
 clean:
 	@$(RM) .\bin\*.*
-run:
+run: $(BIN)
 	$(BIN)

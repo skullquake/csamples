@@ -13,11 +13,18 @@
  */
 #include<stdio.h>
 float square(float x);
+float dub(float x);
 int main(int argc,char** argv){
-	float (*p)(float x)=square;
-	fprintf(stdout,"%f\n",p(2));
+	float (*p)(float x)=NULL;
+	p=square;
+	fprintf(stdout,"%f\n",p(8));
+	p=dub;
+	fprintf(stdout,"%f\n",p(8));
 	return 0;
 }
 float square(float x){
 	return x*x;
+}
+float dub(float x){
+	return x+x;
 }
