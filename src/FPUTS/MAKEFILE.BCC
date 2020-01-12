@@ -13,3 +13,5 @@ clean:
 	@$(RM) .\bin\*.*
 run: $(BIN)
 	@$(BIN)
+	@echo contents of .\out\a.txt:
+	@type .\out\a.txt
