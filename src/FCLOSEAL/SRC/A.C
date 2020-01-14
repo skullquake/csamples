@@ -1,6 +1,8 @@
 /*
  * int fcloseall(void);
  *  closes all open streams except standard ones
+ *  flushes any stream buffers that needs to be flushed
+ *  returns number of streams closed
  */
 #include<stdio.h>
 #include<time.h>
@@ -14,7 +16,7 @@ int main(int argc,char** argv){
 		fp=NULL;
 		sprintf(filename,"./out/%d.txt",i);
 		fprintf(stdout,"Creating %s...",filename);
-		if((fp=fopen(filename,"w")==NULL)){
+		if((fp=fopen(filename,"w"))==NULL){
 			fprintf(stderr,"error: failed to open file\n");
 		}else{
 			fprintf(stdout,"done:");
@@ -26,7 +28,6 @@ int main(int argc,char** argv){
 			}
 		}
 	}
-	/* why does this print 8??? */
 	fprintf(stdout,"Closed %d unclosed files\n",fcloseall());
 	return 0;
 }

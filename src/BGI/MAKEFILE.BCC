@@ -1,0 +1,27 @@
+CC=bcc
+SRCDIR=.\src
+BINDIR=.\bin
+SRC=$(SRCDIR)\a.c
+OBJ=$(BINDIR)\a.obj
+BIN=$(BINDIR)\a.exe
+LDFLAGS=\
+	graphics.lib
+CFLAGS=\
+	-Ic:\opt\bcc\bgi\
+	-Lc:\opt\bcc\bgi
+RM=del
+$(BIN): $(OBJ)
+	$(CC)\
+		$(CFLAGS)\
+		$(OBJ)\
+		$(LDFLAGS)
+$(OBJ): $(SRC)
+	$(CC)\
+		-c\
+		-n$(BINDIR)\
+		$(CFLAGS)\
+		$(SRC)
+clean:
+	@$(RM) .\bin\*.*
+run: $(BIN)
+	@$(BIN)

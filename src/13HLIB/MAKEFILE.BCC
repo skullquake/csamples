@@ -1,0 +1,28 @@
+CC=bcc
+SRCDIR=.\src
+BINDIR=.\bin
+SRC=$(SRCDIR)\a.c
+OBJ=$(BINDIR)\a.obj
+BIN=$(BINDIR)\a.exe
+CFLAGS=\
+	-P\
+	-I/include\
+	-L/lib
+LDFLAGS=\
+	13hlib.lib
+RM=del
+$(BIN): $(OBJ)
+	$(CC)\
+		$(CFLAGS)\
+		$(OBJ)\
+		$(LDFLAGS)
+$(OBJ): $(SRC)
+	$(CC)\
+		$(CFLAGS)\
+		-n$(BINDIR)\
+		-c\
+		$(SRC)
+clean:
+	@$(RM) .\bin\*.*
+run: $(BIN)
+	@$(BIN)
