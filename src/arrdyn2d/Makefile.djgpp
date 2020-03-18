@@ -1,0 +1,19 @@
+CC=~/djgpp/720/bin/i586-pc-msdosdjgpp-gcc
+SRC=./src/a.c
+BIN=./bin/a.exe
+DEPLOYDIR=/mnt/c/tmp/dosdrive/tmp
+$(BIN):$(SRC)
+	$(CC) \
+		$(SRC) \
+		-o $(BIN)
+.phony:\
+	run\
+	clean
+run:$(BIN)
+	$(BIN)
+deploy:$(BIN)
+	@cp\
+		$(BIN) \
+		$(DEPLOYDIR)
+clean:$(BIN)
+	rm $(BIN)
