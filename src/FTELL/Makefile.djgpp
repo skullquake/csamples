@@ -3,6 +3,7 @@ SRC=./src/a.c
 BIN=./bin/a.exe
 DEPLOYDIR=/mnt/c/tmp/dosdrive/tmp
 $(BIN):$(SRC)
+	@mkdir -p $(@D)
 	$(CC) \
 		$(SRC) \
 		-o $(BIN)
@@ -10,7 +11,6 @@ $(BIN):$(SRC)
 	run\
 	clean
 run:$(BIN)
-	@mkdir -p $(@D)
 	$(BIN)
 deploy:$(BIN)
 	@cp\
