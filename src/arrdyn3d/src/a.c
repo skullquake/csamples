@@ -46,7 +46,7 @@ int main(int argc,char** argv){
 		free(a);
 
 	}else{
-		fprintf(stderr,"Usage: %s width height\n",argv[0]);
+		fprintf(stderr,"Usage: %s width height depth\n",argv[0]);
 		exit(1);
 	}
 	return 0;
