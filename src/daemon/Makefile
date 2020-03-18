@@ -1,50 +1,13 @@
-OS=$(shell $(CXX) -dumpmachine)
-ifneq (,$(findstring mingw,$(OS)))
-SOEXT?=dll
-BINEXT?=.exe
-else
-SOEXT?=so
-BINEXT?=
-endif
-ifeq ($(PREFIX),)
-PREFIX := /usr/local
-endif
 CC=gcc
-CXX=g++
-AR=ar
-BUILDDIR=./bin/build
-BINNAM=daemon
-BIN=./bin/$(BINNAM)$(BINEXT)
-SRCDIR=src
-SRC:=$(shell find $(SRCDIR) -name '*.c')
-OBJS:=$(addprefix $(BUILDDIR)/,$(SRC:%.c=%.o))
-CFLAGS=\
-	-I./include
-LDFLAGS=\
-	-llog
-all:\
-	$(BIN)
-$(BIN):$(OBJS)
-	@$(CC)\
-		$(CFLAGS)\
-		$(OBJS)\
-		$(LDFLAGS)\
-		-o $(BIN)
-$(BUILDDIR)/%.o: %.c
-	@printf "generating $@...\n"
+SRC=./src/a.c
+BIN=./bin/a.out
+$(BIN): $(SRC)
 	@mkdir -p $(@D)
-	@$(CC)\
-		$(CFLAGS)\
-		-c $<\
-		$(LDFLAGS)\
-		-o $@
+	$(CC) $(SRC) -o $(BIN)
 .phony:\
 	run\
-	clean\
-	catlog
-clean:
-	@rm -r ./bin
+	clean
 run: $(BIN)
 	$(BIN)
-catlog:
-	logcat -s 'syslog:*'
+clean:
+	rm $(BIN)

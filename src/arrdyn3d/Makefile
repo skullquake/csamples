@@ -2,11 +2,12 @@ CC=gcc
 SRC=./src/a.c
 BIN=./bin/a.out
 $(BIN): $(SRC)
+	@mkdir -p $(@D)
 	$(CC) $(SRC) -o $(BIN)
 .phony:\
 	run\
 	clean
 run: $(BIN)
-	$(BIN) 8 8 8 
+	$(BIN)
 clean:
 	rm $(BIN)

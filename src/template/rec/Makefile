@@ -24,6 +24,8 @@ LDFLAGS=\
 all:\
 	$(BIN)
 $(BIN):$(OBJS)
+	@printf "generating $@...\n"
+	@mkdir -p $(@D)
 	@$(CC)\
 		$(CFLAGS)\
 		$(OBJS)\

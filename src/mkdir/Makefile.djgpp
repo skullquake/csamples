@@ -10,6 +10,7 @@ $(BIN):$(SRC)
 	run\
 	clean
 run:$(BIN)
+	@mkdir -p $(@D)
 	$(BIN)
 deploy:$(BIN)
 	@cp\
