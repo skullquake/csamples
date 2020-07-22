@@ -2,6 +2,7 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<string.h>
+#define NITR 128
 typedef struct Data{
 	size_t id;
 	int x;
@@ -90,7 +91,7 @@ void addHead(LinkedList*l,void*d){
 			else{
 				n->next=NULL;
 #ifndef NDEBUG
-				fprintf(stderr,"info:addHead:adding head     %16p\n",n);
+				fprintf(stderr,"info:addHead:adding head    %16p\n",n);
 #endif
 			}
 			l->head=n;
@@ -139,15 +140,12 @@ void deleteLinkedList(LinkedList*l){
 		Node*cur=l->head;
 		while(cur!=NULL){
 			Node*next=cur->next;
-			if(cur->data!=NULL){
 #ifndef NDEBUG
-				fprintf(stderr,"info:deleteLinkedList:deallocating data [%p]\n",cur->data);
+				fprintf(stderr,"info:deleteLinkedList:deallocating [%p:%p]\n",cur,cur->data);
 #endif
+			if(cur->data!=NULL){
 				free(cur->data);
 			}
-#ifndef NDEBUG
-			fprintf(stderr,"info:deleteLinkedList:deallocating node [%p]\n",cur);
-#endif
 			free(cur);
 			cur=next;
 		}
@@ -233,31 +231,21 @@ void testLinkedList(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:testLinkedList:start\n");
 #endif
+	const int nitr=NITR;
 	LinkedList l;
 	initializeList(&l);
-	for(size_t i=0;i<8;++i){
-		Data*n=(Data*)malloc(sizeof(Data));
-		n=memcpy(n,&(Data){i,0,0,0},sizeof(Data));
-		addHead(&l,n);
+	for(size_t i=0;i<nitr;++i){
+		Data*d=(Data*)malloc(sizeof(Data));
+		memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
+		addHead(&l,d);
 	}
-	for(size_t i=9;i<16;++i){
-		Data*n=(Data*)malloc(sizeof(Data));
-		n=memcpy(n,&(Data){i,0,0,0},sizeof(Data));
-		addTail(&l,n);
+	for(size_t i=nitr+1;i<nitr+nitr;++i){
+		Data*d=(Data*)malloc(sizeof(Data));
+		memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
+		addTail(&l,d);
 	}
 	printLinkedList(&l,printData);
-	for(int i=-4;i<4;++i){
-		Data ndl=(Data){i,0,0,0};
-		Node*res=NULL;
-		res=getNode(&l,compareData,&ndl);
-		if(res!=NULL){
-			printf("info:main:found:    ");
-			printData(res->data);
-		}else{
-			printf("info:main:not found\n");
-		}
-	}
-	for(int i=14;i<20;++i){
+	for(int i=0-nitr-nitr/2;i<nitr/2;++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
 		res=getNode(&l,compareData,&ndl);
@@ -269,7 +257,19 @@ void testLinkedList(void){
 			printData(&ndl);
 		}
 	}
-	for(int i=8;i<10;++i){
+	for(int i=nitr/2;i<(nitr+nitr/2);++i){
+		Data ndl=(Data){i,0,0,0};
+		Node*res=NULL;
+		res=getNode(&l,compareData,&ndl);
+		if(res!=NULL){
+			printf("info:main:found:    ");
+			printData(res->data);
+		}else{
+			printf("info:main:not found ");
+			printData(&ndl);
+		}
+	}
+	for(int i=nitr;i<nitr+nitr/2;++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
 		res=getNode(&l,compareData,&ndl);
@@ -338,12 +338,13 @@ void testQueue(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:testQueue:start\n");
 #endif
+	const int nitr=NITR;
 	{
 		Queue q;
 		initializeQueue(&q);
-		for(size_t i=0;i<8;++i){
+		for(size_t i=0;i<nitr;++i){
 			Data*d=(Data*)malloc(sizeof(Data));
-			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			enqueue(&q,d);
 		}
 		deleteQueue(&q);
@@ -351,9 +352,9 @@ void testQueue(void){
 	{
 		Queue q;
 		initializeQueue(&q);
-		for(size_t i=0;i<8;++i){
+		for(size_t i=0;i<nitr;++i){
 			Data*d=(Data*)malloc(sizeof(Data));
-			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			enqueue(&q,d);
 		}
 		Data*d=NULL;
@@ -430,12 +431,13 @@ void testStack(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:testStack:start\n");
 #endif
+	const int nitr=NITR;
 	{
 		Stack s;
 		initializeStack(&s);
-		for(size_t i=0;i<8;++i){
+		for(size_t i=0;i<nitr;++i){
 			Data*d=(Data*)malloc(sizeof(Data));
-			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			pushStack(&s,d);
 		}
 		printStack(&s,printData);
@@ -445,9 +447,9 @@ void testStack(void){
 	{
 		Stack s;
 		initializeStack(&s);
-		for(size_t i=0;i<8;++i){
+		for(size_t i=0;i<nitr;++i){
 			Data*d=(Data*)malloc(sizeof(Data));
-			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			pushStack(&s,d);
 		}
 		printStack(&s,printData);
