@@ -1,0 +1,28 @@
+CC=~/djgpp/720/bin/i586-pc-msdosdjgpp-gcc
+SRC=./src/a.c
+BIN=./bin/a.exe
+DEPLOYDIR=/mnt/c/tmp/dosdrive/tmp
+CFLAGS=-DNDEBUG
+LDFLAGS=
+$(BIN): $(SRC)
+	@-echo compiling $(@D)
+	@-mkdir -p $(@D)
+	@-$(CC)\
+		$(CFLAGS)\
+		$(SRC)\
+		$(LDFLAGS)\
+		-o $(BIN)
+run: $(BIN)
+	@-echo executing $(@D)
+	@-$(BIN) 32 128 1024
+	@-$(BIN) 64 128 1024
+	@-$(BIN) 128 128 1024
+.phony:\
+	clean\
+	deploy
+clean:
+	@-rm $(BIN)
+deploy:$(BIN)
+	@-cp\
+		$(BIN) \
+		$(DEPLOYDIR)
