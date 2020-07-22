@@ -2,7 +2,7 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<string.h>
-#define NITR 128
+#define NITR 8
 typedef struct Data{
 	size_t id;
 	int x;
@@ -294,25 +294,33 @@ void enqueue(Queue*q,void*d){
 void*dequeue(Queue*q){
 	void*ret=NULL;
 	if(q!=NULL){
-		if(q->head==NULL){
-			ret=NULL;
-		}else if(q->head==q->tail){
+		if(q->tail!=NULL){
+			if(q->tail==q->head){
 #ifndef NDEBUG
-				fprintf(stderr,"info:dequeue:adjusting head %16p > %16p\n",q->head,NULL);
+				fprintf(stderr,"info:dequeue:adjusting tail %16p > %16p\n",q->tail,NULL);
 #endif
-			ret=q->head->data;
-			free(q->head);
-			q->head=NULL;
-			q->tail=NULL;
+				ret=q->head->data;
+				free(q->head);
+				q->head=NULL;
+				q->tail=NULL;
+			}else if(q->tail!=NULL){
+				ret=q->tail->data;
+				Node*pos=q->head;
+				while(pos->next!=q->tail){
+					pos=pos->next;
+				}
+				free(pos->next);
+				pos->next=NULL;
+#ifndef NDEBUG
+				fprintf(stderr,"info:dequeue:adjusting tail %16p > %16p\n",q->tail,pos);
+#endif
+				q->tail=pos;
+			}
 		}else{
-			ret=q->head->data;
-			Node*n=q->head->next;;
-			free(q->head);
-#ifndef NDEBUG
-				fprintf(stderr,"info:dequeue:adjusting head %16p > %16p\n",q->head,n);
-#endif
-			q->head=n;
+			ret=NULL;
 		}
+	}else{
+		fprintf(stderr,"error:dequeue:stack NULL\n",q);
 	}
 	return ret;
 }
@@ -359,6 +367,8 @@ void testQueue(void){
 		}
 		Data*d=NULL;
 		while((d=dequeue(&q))!=NULL){
+			printf("info:testQueue:dequeued:              ");
+			printData(d);
 			printQueue(&q,printData);
 			printf("--------------------------------------------------------------------------------\n");
 			free(d);
@@ -384,7 +394,7 @@ void deleteStack(Stack*s){
 }
 void pushStack(Stack*s,void*d){
 	if(s!=NULL&&d!=NULL){
-		addTail(s,d);
+		addHead(s,d);
 	}else{
 #ifndef NDEBUG
 		fprintf(stderr,"info:pushStack:invalid arguents\n");
@@ -394,33 +404,25 @@ void pushStack(Stack*s,void*d){
 void*popStack(Stack*s){
 	void*ret=NULL;
 	if(s!=NULL){
-		if(s->tail!=NULL){
-			if(s->tail==s->head){
-#ifndef NDEBUG
-				fprintf(stderr,"info:popStack:adjusting tail %16p > %16p\n",s->tail,NULL);
-#endif
-				ret=s->head->data;
-				free(s->head);
-				s->head=NULL;
-				s->tail=NULL;
-			}else if(s->tail!=NULL){
-				ret=s->tail->data;
-				Node*pos=s->head;
-				while(pos->next!=s->tail){
-					pos=pos->next;
-				}
-				free(pos->next);
-				pos->next=NULL;
-#ifndef NDEBUG
-				fprintf(stderr,"info:popStack:adjusting tail %16p > %16p\n",s->tail,pos);
-#endif
-				s->tail=pos;
-			}
-		}else{
+		if(s->head==NULL){
 			ret=NULL;
+		}else if(s->head==s->tail){
+#ifndef NDEBUG
+				fprintf(stderr,"info:popStack:adjusting head %16p > %16p\n",s->head,NULL);
+#endif
+			ret=s->head->data;
+			free(s->head);
+			s->head=NULL;
+			s->tail=NULL;
+		}else{
+			ret=s->head->data;
+			Node*n=s->head->next;;
+			free(s->head);
+#ifndef NDEBUG
+				fprintf(stderr,"info:popStack:adjusting head %16p > %16p\n",s->head,n);
+#endif
+			s->head=n;
 		}
-	}else{
-		fprintf(stderr,"error:popStack:stack NULL\n",s);
 	}
 	return ret;
 }
@@ -455,6 +457,8 @@ void testStack(void){
 		printStack(&s,printData);
 		Data*d=NULL;
 		while((d=popStack(&s))!=NULL){
+			printf("info:testStack:popped:                ");
+			printData(d);
 			printStack(&s,printData);
 			printf("--------------------------------------------------------------------------------\n");
 			free(d);
