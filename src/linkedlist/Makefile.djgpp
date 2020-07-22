@@ -14,9 +14,7 @@ $(BIN): $(SRC)
 		-o $(BIN)
 run: $(BIN)
 	@-echo executing $(@D)
-	@-$(BIN) 32 128 1024
-	@-$(BIN) 64 128 1024
-	@-$(BIN) 128 128 1024
+	@-$(BIN)
 .phony:\
 	clean\
 	deploy
