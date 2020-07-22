@@ -23,8 +23,8 @@ extern void initializeList(LinkedList*);
 extern void addHead(LinkedList*,void*);
 extern void addTail(LinkedList*,void*);
 extern void delete(LinkedList*);
-extern Node*getNode(LinkedList*,int(*)(Data*,Data*),void*);
-extern void printLinkedList(LinkedList*);
+extern Node*getNode(LinkedList*,int(*)(void*,void*),void*);
+extern void printLinkedList(LinkedList*,void(*)(void*));
 int main(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:main:start\n");
@@ -41,7 +41,7 @@ int main(void){
 		n=memcpy(n,&(Data){i,0,0,0},sizeof(Data));
 		addTail(&l,n);
 	}
-	printLinkedList(&l);
+	printLinkedList(&l,printData);
 	for(int i=-4;i<4;++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
@@ -216,7 +216,7 @@ void delete(LinkedList*l){
 	fprintf(stderr,"info:delete:end\n");
 #endif
 }
-Node*getNode(LinkedList*l,int(*fptr)(Data*,Data*),void*d){
+Node*getNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
 #ifndef NDEBUG
 	fprintf(stderr,"info:getNode:start\n");
 #endif
@@ -243,7 +243,7 @@ Node*getNode(LinkedList*l,int(*fptr)(Data*,Data*),void*d){
 #endif
 	return ret;
 }
-void printLinkedList(LinkedList*l){
+void printLinkedList(LinkedList*l,void(*fptr)(void*)){
 #ifndef NDEBUG
 	fprintf(stderr,"info:printLinkedList:start\n");
 #endif
@@ -251,7 +251,7 @@ void printLinkedList(LinkedList*l){
 		l->cur=l->head;
 		while(l->cur!=NULL){
 			if(l->cur->data!=NULL){
-				printData(l->cur->data);
+				fptr((void*)(l->cur->data));
 			}
 			l->cur=l->cur->next;
 		}
