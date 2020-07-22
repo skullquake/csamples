@@ -23,7 +23,7 @@ typedef struct LinkedList{
 extern void initializeList(LinkedList*);
 extern void addHead(LinkedList*,void*);
 extern void addTail(LinkedList*,void*);
-extern void deleteList(LinkedList*);
+extern void deleteLinkedList(LinkedList*);
 extern void deleteNode(LinkedList*,int(*)(void*,void*),void*);
 extern Node*getNode(LinkedList*,int(*)(void*,void*),void*);
 extern void printLinkedList(LinkedList*,void(*)(void*));
@@ -40,6 +40,8 @@ void testQueue(void);
 typedef LinkedList Stack;
 extern void initializeStack(Stack*);
 extern void deleteStack(Stack*);
+extern void pushStack(Stack*,void*);
+extern void*popStack(Stack*);
 extern void printStack(Stack*,void(*)(void*));
 void testStack(void);
 int main(void){
@@ -60,7 +62,11 @@ int compareData(Data*s0,Data*s1){
 	return ret;
 }
 void printData(Data*s){
-	printf("D%16p: %4zu%4d%4d%4d\n",s,s->id,s->x,s->y,s->z);
+	if(s!=NULL){
+		printf("D%16p: %4zu%4d%4d%4d\n",s,s->id,s->x,s->y,s->z);
+	}else{
+		printf("D%16p!\n",s);
+	}
 }
 /* list */
 void initializeList(LinkedList*l){
@@ -125,9 +131,9 @@ void addTail(LinkedList*l,void*d){
 		}
 	}
 }
-void deleteList(LinkedList*l){
+void deleteLinkedList(LinkedList*l){
 #ifndef NDEBUG
-	fprintf(stderr,"info:deleteList:start\n");
+	fprintf(stderr,"info:deleteLinkedList:start\n");
 #endif
 	if(l!=NULL){
 		Node*cur=l->head;
@@ -135,19 +141,19 @@ void deleteList(LinkedList*l){
 			Node*next=cur->next;
 			if(cur->data!=NULL){
 #ifndef NDEBUG
-				fprintf(stderr,"info:deleteList:deallocating data [%p]\n",cur->data);
+				fprintf(stderr,"info:deleteLinkedList:deallocating data [%p]\n",cur->data);
 #endif
 				free(cur->data);
 			}
 #ifndef NDEBUG
-			fprintf(stderr,"info:deleteList:deallocating node [%p]\n",cur);
+			fprintf(stderr,"info:deleteLinkedList:deallocating node [%p]\n",cur);
 #endif
 			free(cur);
 			cur=next;
 		}
 	}
 #ifndef NDEBUG
-	fprintf(stderr,"info:deleteList:end\n");
+	fprintf(stderr,"info:deleteLinkedList:end\n");
 #endif
 }
 extern void deleteNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
@@ -211,6 +217,7 @@ void printLinkedList(LinkedList*l,void(*fptr)(void*)){
 		l->cur=l->head;
 		while(l->cur!=NULL){
 			if(l->cur->data!=NULL){
+				printf("L %16p > %16p ",l->cur,l->cur->next);
 				fptr((void*)(l->cur->data));
 			}
 			l->cur=l->cur->next;
@@ -272,7 +279,7 @@ void testLinkedList(void){
 		}
 	}
 	printLinkedList(&l,printData);
-	deleteList(&l);
+	deleteLinkedList(&l);
 #ifndef NDEBUG
 	fprintf(stderr,"info:testLinkedList:end\n");
 #endif
@@ -285,25 +292,38 @@ void enqueue(Queue*q,void*d){
 	addHead(q,d);
 }
 void*dequeue(Queue*q){
-	void*d=NULL;
+	void*ret=NULL;
 	if(q!=NULL){
 		if(q->head==NULL){
-			d=NULL;
+			ret=NULL;
 		}else if(q->head==q->tail){
-			d=q->head->data;
+#ifndef NDEBUG
+				fprintf(stderr,"info:dequeue:adjusting head %16p > %16p\n",q->head,NULL);
+#endif
+			ret=q->head->data;
 			free(q->head);
 			q->head=NULL;
 			q->tail=NULL;
 		}else{
-			d=q->head->data;
+			ret=q->head->data;
 			Node*n=q->head->next;;
 			free(q->head);
+#ifndef NDEBUG
+				fprintf(stderr,"info:dequeue:adjusting head %16p > %16p\n",q->head,n);
+#endif
 			q->head=n;
 		}
 	}
+	return ret;
 }
 void deleteQueue(Queue*q){
-	deleteList(q);
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteQueue:start\n");
+#endif
+	deleteLinkedList(q);
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteQueue:end\n");
+#endif
 }
 void printQueue(Queue*q,void(*fptr)(void*)){
 #ifndef NDEBUG
@@ -316,36 +336,129 @@ void printQueue(Queue*q,void(*fptr)(void*)){
 }
 void testQueue(void){
 #ifndef NDEBUG
-	fprintf(stderr,"info:testQueue:end\n");
+	fprintf(stderr,"info:testQueue:start\n");
 #endif
-	Queue q;
-	initializeQueue(&q);
-	for(size_t i=0;i<8;++i){
-		Data*d=(Data*)malloc(sizeof(Data));
-		memcpy(d,&(Data){i,0,0,0},sizeof(Data));
-		enqueue(&q,d);
+	{
+		Queue q;
+		initializeQueue(&q);
+		for(size_t i=0;i<8;++i){
+			Data*d=(Data*)malloc(sizeof(Data));
+			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			enqueue(&q,d);
+		}
+		deleteQueue(&q);
 	}
-	Data*d=NULL;
-	while((d=dequeue(&q))!=NULL){
-		printQueue(&q,printData);
-		printf("--------------------------------------------------------------------------------\n");
+	{
+		Queue q;
+		initializeQueue(&q);
+		for(size_t i=0;i<8;++i){
+			Data*d=(Data*)malloc(sizeof(Data));
+			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			enqueue(&q,d);
+		}
+		Data*d=NULL;
+		while((d=dequeue(&q))!=NULL){
+			printQueue(&q,printData);
+			printf("--------------------------------------------------------------------------------\n");
+			free(d);
+		}
+		deleteQueue(&q);
 	}
-	deleteQueue(&q);
 #ifndef NDEBUG
 	fprintf(stderr,"info:testQueue:end\n");
 #endif
 }
 /* stack */
 void initializeStack(Stack*s){
+	initializeList(s);
 }
 void deleteStack(Stack*s){
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteStack:start\n");
+#endif
+	deleteLinkedList(s);
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteStack:end\n");
+#endif
+}
+void pushStack(Stack*s,void*d){
+	if(s!=NULL&&d!=NULL){
+		addTail(s,d);
+	}else{
+#ifndef NDEBUG
+		fprintf(stderr,"info:pushStack:invalid arguents\n");
+#endif
+	}
+}
+void*popStack(Stack*s){
+	void*ret=NULL;
+	if(s!=NULL){
+		if(s->tail!=NULL){
+			if(s->tail==s->head){
+#ifndef NDEBUG
+				fprintf(stderr,"info:popStack:adjusting tail %16p > %16p\n",s->tail,NULL);
+#endif
+				ret=s->head->data;
+				free(s->head);
+				s->head=NULL;
+				s->tail=NULL;
+			}else if(s->tail!=NULL){
+				ret=s->tail->data;
+				Node*pos=s->head;
+				while(pos->next!=s->tail){
+					pos=pos->next;
+				}
+				free(pos->next);
+				pos->next=NULL;
+#ifndef NDEBUG
+				fprintf(stderr,"info:popStack:adjusting tail %16p > %16p\n",s->tail,pos);
+#endif
+				s->tail=pos;
+			}
+		}else{
+			ret=NULL;
+		}
+	}else{
+		fprintf(stderr,"error:popStack:stack NULL\n",s);
+	}
+	return ret;
 }
 void printStack(Stack*s,void(*fptr)(void*)){
+	printLinkedList(s,fptr);
 }
 void testStack(void){
 #ifndef NDEBUG
-	fprintf(stderr,"info:testStack:end\n");
+	fprintf(stderr,"info:testStack:start\n");
 #endif
+	{
+		Stack s;
+		initializeStack(&s);
+		for(size_t i=0;i<8;++i){
+			Data*d=(Data*)malloc(sizeof(Data));
+			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			pushStack(&s,d);
+		}
+		printStack(&s,printData);
+		deleteStack(&s);
+	}
+
+	{
+		Stack s;
+		initializeStack(&s);
+		for(size_t i=0;i<8;++i){
+			Data*d=(Data*)malloc(sizeof(Data));
+			memcpy(d,&(Data){i,0,0,0},sizeof(Data));
+			pushStack(&s,d);
+		}
+		printStack(&s,printData);
+		Data*d=NULL;
+		while((d=popStack(&s))!=NULL){
+			printStack(&s,printData);
+			printf("--------------------------------------------------------------------------------\n");
+			free(d);
+		}
+		deleteStack(&s);
+	}
 #ifndef NDEBUG
 	fprintf(stderr,"info:testStacked:end\n");
 #endif
