@@ -22,7 +22,8 @@ typedef struct LinkedList{
 extern void initializeList(LinkedList*);
 extern void addHead(LinkedList*,void*);
 extern void addTail(LinkedList*,void*);
-extern void delete(LinkedList*);
+extern void deleteList(LinkedList*);
+extern void deleteNode(LinkedList*,int(*)(void*,void*),void*);
 extern Node*getNode(LinkedList*,int(*)(void*,void*),void*);
 extern void printLinkedList(LinkedList*,void(*)(void*));
 int main(void){
@@ -61,10 +62,21 @@ int main(void){
 			printf("info:main:found:    ");
 			printData(res->data);
 		}else{
-			printf("info:main:not found\n");
+			printf("info:main:not found ");
+			printData(&ndl);
 		}
 	}
-	delete(&l);
+	for(int i=8;i<10;++i){
+		Data ndl=(Data){i,0,0,0};
+		Node*res=NULL;
+		res=getNode(&l,compareData,&ndl);
+		if(res!=NULL){
+			deleteNode(&l,compareData,res->data);
+		}else{
+		}
+	}
+	printLinkedList(&l,printData);
+	deleteList(&l);
 #ifndef NDEBUG
 	fprintf(stderr,"info:main:end\n");
 #endif
@@ -84,7 +96,7 @@ void printData(Data*s){
 #ifndef NDEBUG
 	fprintf(stderr,"info:printData:start\n");
 #endif
-	printf("D[addr,id,x,y,z]: %16p%4zu%4d%4d%4d\n",s,s->id,s->x,s->y,s->z);
+	printf("D[id,x,y,z,addr]: %4zu%4d%4d%4d%16p\n",s->id,s->x,s->y,s->z,s);
 #ifndef NDEBUG
 	fprintf(stderr,"info:printData:end\n");
 #endif
@@ -191,9 +203,9 @@ void addTail(LinkedList*l,void*d){
 	fprintf(stderr,"info:addTail:end\n");
 #endif
 }
-void delete(LinkedList*l){
+void deleteList(LinkedList*l){
 #ifndef NDEBUG
-	fprintf(stderr,"info:delete:start\n");
+	fprintf(stderr,"info:deleteList:start\n");
 #endif
 	if(l!=NULL){
 		Node*cur=l->head;
@@ -201,19 +213,63 @@ void delete(LinkedList*l){
 			Node*next=cur->next;
 			if(cur->data!=NULL){
 #ifndef NDEBUG
-				fprintf(stderr,"info:deleteLinkedList:deallocating data [%p]\n",cur->data);
+				fprintf(stderr,"info:deleteList:deallocating data [%p]\n",cur->data);
 #endif
 				free(cur->data);
 			}
 #ifndef NDEBUG
-			fprintf(stderr,"info:deleteLinkedList:deallocating node [%p]\n",cur);
+			fprintf(stderr,"info:deleteList:deallocating node [%p]\n",cur);
 #endif
 			free(cur);
 			cur=next;
 		}
 	}
 #ifndef NDEBUG
-	fprintf(stderr,"info:delete:end\n");
+	fprintf(stderr,"info:deleteList:end\n");
+#endif
+}
+extern void deleteNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteNode:start\n");
+#endif
+	if(l!=NULL&&fptr!=NULL&&d!=NULL){
+		Node*cur=l->head;
+		Node*prv=NULL;
+		while(cur!=NULL){
+			if(fptr(cur->data,d)){
+				if(prv!=NULL){
+					prv->next=cur->next;
+				}
+				break;
+			}
+			prv=cur;
+			cur=cur->next;
+		}
+		if(cur!=NULL){
+			if(cur==l->head){
+				l->head=cur->next;
+			}else if(cur==l->tail){
+				l->tail=prv;
+			}
+			free(cur);
+			if(prv!=NULL){
+#ifndef NDEBUG
+				fprintf(stderr,"info:deleteNode:reattaching %p > %p\n",cur,cur->next);
+#endif
+				prv->next=cur->next;
+			}
+#ifndef NDEBUG
+			else{
+				fprintf(stderr,"info:deleteNode:deleting\n");
+			}
+#endif
+			free(d);
+		}
+	}else{
+		fprintf(stderr,"error:deleteNode:invalid arguments\n");
+	}
+#ifndef NDEBUG
+	fprintf(stderr,"info:deleteNode:end\n");
 #endif
 }
 Node*getNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
