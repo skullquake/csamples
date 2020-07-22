@@ -10,6 +10,10 @@ typedef struct S{
 	char buf1[4096];
 	char buf2[4096];
 	char buf3[4096];
+	char buf4[4096];
+	char buf5[4096];
+	char buf6[4096];
+	char buf7[4096];
 }S;
 int bufsz;
 S**gs=NULL;
@@ -18,6 +22,9 @@ void putS(S*);
 void printS(S*);
 void cleanup(void);
 int main(int argc,char**argv){
+#ifndef NDEBUG
+			fprintf(stderr,"info:main:start\n");
+#endif
 	int ret=EXIT_SUCCESS;
 	if(argc!=4){
 		fprintf(stderr,"error:main:invalid arguments\n");
@@ -28,19 +35,21 @@ int main(int argc,char**argv){
 		size_t nitr=atol(argv[3]);
 		gs=(S**)malloc(sizeof(S*)*bufsz);
 		if(gs!=NULL){
-#ifndef NDEBUG
-			fprintf(stderr,"info:main:start\n");
-#endif
 			atexit(cleanup);
-			S**buf=(S**)malloc(sizeof(S*)*wbufsz);
-			if(buf!=NULL){
-				S**beg=buf;
-				S**end=buf+wbufsz;
+			S**gsbeg=gs;
+			S**gsend=gsbeg+bufsz;
+			for(S**gspos=gsbeg;gspos!=gsend;++gspos){
+				*gspos=NULL;
+			}
+			S**wbuf=(S**)malloc(sizeof(S*)*wbufsz);
+			if(wbuf!=NULL){
+				S**wbeg=wbuf;
+				S**wend=wbuf+wbufsz;
 				clock_t tic=clock();//time in clock
 				for(size_t i=0;i<nitr;++i){
 					{
 						int idx=0;
-						for(S**pos=beg;pos!=end;++pos){
+						for(S**wpos=wbeg;wpos!=wend;++wpos){
 #ifndef NDEBUG
 							printf("----get:%4d----\n",idx);
 #endif
@@ -52,24 +61,24 @@ int main(int argc,char**argv){
 #ifndef NDEBUG
 							printS(s);
 #endif
-							*pos=s;
-							*pos=s;
+							*wpos=s;
+							*wpos=s;
 							++idx;
 						}
 					}
 					{
 						int idx=0;
-						for(S**pos=beg;pos!=end;++pos){
+						for(S**wpos=wbeg;wpos!=wend;++wpos){
 #ifndef NDEBUG
 							printf("----put:%4d----\n",idx);
 #endif
-							putS(*pos);
+							putS(*wpos);
 							++idx;
 						}
 					}
 					{
 						int idx=0;
-						for(S**pos=beg;pos!=end;++pos){
+						for(S**wpos=wbeg;wpos!=wend;++wpos){
 #ifndef NDEBUG
 							printf("----get:%4d----\n",idx);
 #endif
@@ -81,18 +90,17 @@ int main(int argc,char**argv){
 #ifndef NDEBUG
 							printS(s);
 #endif
-							*pos=s;
-							*pos=s;
+							*wpos=s;
 							++idx;
 						}
 					}
 					{
 						int idx=0;
-						for(S**pos=beg;pos!=end;++pos){
+						for(S**wpos=wbeg;wpos!=wend;++wpos){
 #ifndef NDEBUG
 							printf("----put:%4d----\n",idx);
 #endif
-							putS(*pos);
+							putS(*wpos);
 							++idx;
 						}
 					}
@@ -100,7 +108,7 @@ int main(int argc,char**argv){
 				clock_t toc=clock();//time out clock
 				double dur=(double)(toc-tic)/CLOCKS_PER_SEC;
 				fprintf(stderr,"info:main:dur:%lf\n",dur);
-				free(buf);
+				free(wbuf);
 			}else{
 				fprintf(stderr,"error:main:failed to allocate working buffer\n");
 				ret=EXIT_FAILURE;
