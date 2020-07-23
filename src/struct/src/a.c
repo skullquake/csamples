@@ -1,94 +1,35 @@
+#include<stdlib.h>
 #include<stdio.h>
-struct Vec2i{
-	int x;
-	int y;
-};
-struct Vec2f{
-	float x;
-	float y;
-};
-struct Employee{
-	char name[80];
-	char surname[80];
-	int salary;
-};
-int main(int argc,char** argv){
-	{
-		/*stack*/
-		struct Vec2i a;
-		struct Vec2f b;
-		a.x=1;
-		a.y=2;
-		fprintf(stdout,"x:%d\n",a.x);
-		fprintf(stdout,"y:%d\n",a.y);
-		b.x=0.1;
-		b.y=0.2;
-		fprintf(stdout,"x:%f\n",b.x);
-		fprintf(stdout,"y:%f\n",b.y);
-	}
-	{
-		/*dynamic*/
-		struct Vec2i *a;
-		struct Vec2f *b;
-		a=(struct Vec2i*)malloc(sizeof(struct Vec2i));
-		if(a!=NULL){
-			a->x=1;
-			a->y=2;
-			fprintf(stdout,"x:%d\n",a->x);
-			fprintf(stdout,"y:%d\n",a->y);
-			free(a);
-		}else{
-			fprintf(stderr,"Failed to allocate\n");
-			exit(1);
-		}
-		b=(struct Vec2f*)malloc(sizeof(struct Vec2f));
-		if(b!=NULL){
-			b->x=0.1;
-			b->y=0.2;
-			fprintf(stdout,"x:%f\n",b->x);
-			fprintf(stdout,"y:%f\n",b->y);
-			free(b);
-		}else{
-			fprintf(stderr,"Failed to allocate\n");
-			exit(1);
-		}
-
-	}
-	{
-		/*initialization*/
-		struct Employee a={
-			"John",
-			"Doe",
-			1000
-		};
-		printf(
-			"Employee:\nName:%s\nSurname:%s\nSalary:%d\n",
-			a.name,
-			a.surname,
-			a.salary
-		);
-	}
-	{
-		/*inline*/
-		struct {
-			char a[80];
-			int b
-		} a[]={
-			"foo",
-			0,
-			"bar",
-			1,
-			"baz",
-			2
-		};
-		for(int i=0;i<sizeof(a)/sizeof(a[0]);i++){
-			fprintf(
-				stdout,
-				"a:%s\nb:%d\n----------------------------------------\n",
-				a[i].a,
-				a[i].b
-			);
-		}
-	}
-	return 0;
+#include<limits.h>
+#include<string.h>
+typedef struct S{
+	unsigned int v;
+	unsigned int x;
+	unsigned int y;
+	unsigned int z;
+}S;
+int main(void){
+	S*s=NULL;
+	if(fwrite(memcpy(s=(S*)malloc(sizeof(S)),&(S){UINT_MAX>>0,UINT_MAX>>8,UINT_MAX>>16,UINT_MAX>>24},sizeof(S)),sizeof(S),1,stdout))free(s);
+	fwrite(&(S){0,0,0,0},sizeof(S),1,stdout);
+	s=&(S){UINT_MAX,0,UINT_MAX,0};
+	fwrite(s,sizeof(S),1,stdout);
+	*(((unsigned int*)s)+1)=UINT_MAX;
+	fwrite(s,sizeof(S),1,stdout);
+	*(((unsigned int*)s)+0)=0;
+	*(((unsigned int*)s)+1)=0;
+	*(((unsigned int*)s)+2)=0;
+	*(((unsigned int*)s)+3)=0;
+	fwrite(s,sizeof(S),1,stdout);
+	*(((unsigned int*)s)+0)=UINT_MAX;
+	*(((unsigned int*)s)+1)=0;
+	*(((unsigned int*)s)+2)=UINT_MAX;
+	*(((unsigned int*)s)+3)=0;
+	fwrite(s,sizeof(S),1,stdout);
+	*(((unsigned int*)s)+0)=0;
+	*(((unsigned int*)s)+1)=UINT_MAX;
+	*(((unsigned int*)s)+2)=0;
+	*(((unsigned int*)s)+3)=UINT_MAX;
+	fwrite(s,sizeof(S),1,stdout);
+	return EXIT_SUCCESS;
 }

@@ -8,6 +8,6 @@ $(BIN): $(SRC)
 	run\
 	clean
 run: $(BIN)
-	$(BIN)|xxd
+	$(BIN)
 clean:
 	rm $(BIN)
