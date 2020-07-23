@@ -52,8 +52,7 @@ typedef struct TreeNode{
 	struct TreeNode*left;
 	struct TreeNode*right;
 }TreeNode;
-extern void initializeTree(TreeNode**,void*);
-extern void insertTreeNode(TreeNode**,int(*)(void*,void*),void*);
+extern TreeNode*insertTreeNode(TreeNode**,int(*)(void*,void*),void*);
 extern void deleteTreeNode(TreeNode*,TreeNode*);
 extern void*findNode(TreeNode*,int(*)(void*,void*),void*);
 extern void deleteTree(TreeNode*);
@@ -490,53 +489,71 @@ void testStack(void){
 #endif
 }
 /* Tree */
-void initializeTree(TreeNode**t,void*d){
-	if(t!=NULL){
-		if(*t==NULL)*t=(TreeNode*)malloc(sizeof(TreeNode));
-		if(*t!=NULL){
-			(*t)->data=d;
-			(*t)->left=NULL;
-			(*t)->right=NULL;
-		}
-	}
-}
-void insertTreeNode(TreeNode**root,int(*cmp)(void*,void*),void*d){
-	if(root!=NULL&&*root!=NULL&&d!=NULL){
-		TreeNode*n=(TreeNode*)malloc(sizeof(TreeNode));
-		n->data=d;
-		n->left=NULL;
-		n->right=NULL;
-		if(*root==NULL){
-			*root=n;
-			return;
+TreeNode*insertTreeNode(TreeNode**root,int(*cmp)(void*,void*),void*d){
+	TreeNode*ret=NULL;
+	if(root==NULL){
+		ret=(TreeNode*)malloc(sizeof(TreeNode));
+		if(ret==NULL){
+			fprintf(stderr,"error:insertTreeNode:failed to allocate new node\n");
 		}else{
-			while(true){
-				if(cmp((*root)->data,d)>0){
-					if((*root)->left!=NULL){
-						*root=(*root)->left;
-					}else{
 #ifndef NDEBUG
-					fprintf(stderr,"info:insertTreeNode:inserting left  %16p > %16p\n",(*root),n);
+			fprintf(stderr,"info:insertTreeNode:creating new             %16p\n",ret);
 #endif
-						(*root)->left=n;
-						break;
-					}
-				}else{
-					if((*root)->right!=NULL){
-						*root=(*root)->right;
-					}else{
+			ret->data=d;
+			ret->left=NULL;
+			ret->right=NULL;
+		}
+	}else if(*root==NULL){
+		*root=insertTreeNode(NULL,NULL,d);
 #ifndef NDEBUG
-					fprintf(stderr,"info:insertTreeNode:inserting right %16p > %16p\n",(*root),n);
+		fprintf(stderr,"info:insertTreeNode:creating new reference   %16p\n",*root);
 #endif
-						(*root)->right=n;
-						break;
+		ret=*root;
+	}else{
+		TreeNode*cur=*root;
+		if(cur!=NULL&&cmp!=NULL&&d!=NULL){
+			TreeNode*n=(TreeNode*)malloc(sizeof(TreeNode));
+			n->data=d;
+			n->left=NULL;
+			n->right=NULL;
+			if(cur==NULL){
+#ifndef NDEBUG
+				fprintf(stderr,"info:insertTreeNode:creating new             %16p\n",n);
+#endif
+				cur=n;
+				return n;
+			}else{
+				while(true){
+					if(cmp((cur)->data,d)>0){
+						if((cur)->left!=NULL){
+							cur=cur->left;
+						}else{
+#ifndef NDEBUG
+							fprintf(stderr,"info:insertTreeNode:inserting left           %16p > %16p\n",cur,n);
+#endif
+							cur->left=n;
+							ret=n;
+							break;
+						}
+					}else{
+						if(cur->right!=NULL){
+							cur=cur->right;
+						}else{
+#ifndef NDEBUG
+							fprintf(stderr,"info:insertTreeNode:inserting right          %16p > %16p\n",cur,n);
+#endif
+							cur->right=n;
+							ret=n;
+							break;
+						}
 					}
 				}
 			}
+		}else{
+			fprintf(stderr,"error:insertNode:invalid arguments\n");
 		}
-	}else{
-		fprintf(stderr,"error:insertNode:invalid arguments\n");
 	}
+	return ret;
 }
 void deleteTreeNode(TreeNode*t,TreeNode*n){
 }
@@ -596,14 +613,12 @@ void testTree(void){
 	const int minVal=0;
 	const int maxVal=100;
 	TreeNode*root=NULL;
-	TreeNode*root_=root;
-	
-	initializeTree(&root,memcpy((Data*)malloc(sizeof(Data)),&(Data){0,minVal+rand()%(maxVal-minVal),0,0},sizeof(Data)));
-	for(size_t i=0;i<128;++i){
-		root_=root;
-		Data*d=(Data*)malloc(sizeof(Data));
-		memcpy(d,&(Data){i+1,minVal+rand()%(maxVal-minVal),0,0},sizeof(Data));
-		insertTreeNode(&root_,(int(*)(void*,void*))compareData,d);
+	for(size_t i=0;i<8;++i){
+		insertTreeNode(
+			&root,
+			(int(*)(void*,void*))compareData,
+			memcpy((Data*)malloc(sizeof(Data)),&(Data){i,minVal+rand()%(maxVal-minVal),0,42},sizeof(Data))
+		);
 	}
 	traverseTreeInOrder(root,(int(*)(void*,void*))compareData,(void(*)(void*))printData);
 	deleteTree(root);
