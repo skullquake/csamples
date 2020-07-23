@@ -2,7 +2,8 @@
 #include<stdbool.h>
 #include<stdio.h>
 #include<string.h>
-#define NITR 8
+#include<time.h>
+#define NITR 32
 typedef struct Data{
 	size_t id;
 	int x;
@@ -44,14 +45,31 @@ extern void deleteStack(Stack*);
 extern void pushStack(Stack*,void*);
 extern void*popStack(Stack*);
 extern void printStack(Stack*,void(*)(void*));
-void testStack(void);
+extern void testStack(void);
+/* tree */
+typedef struct TreeNode{
+	void*data;
+	struct TreeNode*left;
+	struct TreeNode*right;
+}TreeNode;
+extern void initializeTree(TreeNode**,void*);
+extern void insertTreeNode(TreeNode**,int(*)(void*,void*),void*);
+extern void deleteTreeNode(TreeNode*,TreeNode*);
+extern void*findNode(TreeNode*,int(*)(void*,void*),void*);
+extern void deleteTree(TreeNode*);
+extern void testTree(void);
+extern void traverseTreeInOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
+extern void traverseTreePreOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
+extern void traverseTreePostOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
 int main(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:main:start\n");
 #endif
+	srand(time(0));
 	testLinkedList();
 	testQueue();
 	testStack();
+	testTree();
 #ifndef NDEBUG
 	fprintf(stderr,"info:main:end\n");
 #endif
@@ -59,7 +77,12 @@ int main(void){
 }
 /* data */
 int compareData(Data*s0,Data*s1){
-	int ret=s0->id==s1->id;
+	int ret=-1;
+	if(s0!=NULL&&s1!=NULL){
+		ret=s0->id==s1->id;
+	}else{
+		fprintf(stderr,"info:compareData:invalid arguments\n");
+	}
 	return ret;
 }
 void printData(Data*s){
@@ -143,9 +166,7 @@ void deleteLinkedList(LinkedList*l){
 #ifndef NDEBUG
 				fprintf(stderr,"info:deleteLinkedList:deallocating [%p:%p]\n",cur,cur->data);
 #endif
-			if(cur->data!=NULL){
-				free(cur->data);
-			}
+			if(cur->data!=NULL)free(cur->data);
 			free(cur);
 			cur=next;
 		}
@@ -154,12 +175,12 @@ void deleteLinkedList(LinkedList*l){
 	fprintf(stderr,"info:deleteLinkedList:end\n");
 #endif
 }
-extern void deleteNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
-	if(l!=NULL&&fptr!=NULL&&d!=NULL){
+extern void deleteNode(LinkedList*l,int(*cmp)(void*,void*),void*d){
+	if(l!=NULL&&cmp!=NULL&&d!=NULL){
 		Node*cur=l->head;
 		Node*prv=NULL;
 		while(cur!=NULL){
-			if(fptr(cur->data,d)){
+			if(cmp(cur->data,d)){
 				if(prv!=NULL){
 					prv->next=cur->next;
 				}
@@ -193,12 +214,12 @@ extern void deleteNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
 		fprintf(stderr,"error:deleteNode:invalid arguments\n");
 	}
 }
-Node*getNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
+Node*getNode(LinkedList*l,int(*cmp)(void*,void*),void*d){
 	Node*ret=NULL;
-	if(l!=NULL&&fptr!=NULL&&d!=NULL){
+	if(l!=NULL&&cmp!=NULL&&d!=NULL){
 		Node*cur=l->head;
 		while(cur!=NULL){
-			if(fptr(cur->data,d)){
+			if(cmp(cur->data,d)){
 				ret=cur;
 				break;
 			}
@@ -207,7 +228,7 @@ Node*getNode(LinkedList*l,int(*fptr)(void*,void*),void*d){
 	}
 	return ret;
 }
-void printLinkedList(LinkedList*l,void(*fptr)(void*)){
+void printLinkedList(LinkedList*l,void(*cmp)(void*)){
 #ifndef NDEBUG
 	fprintf(stderr,"info:printLinkedList:start\n");
 #endif
@@ -216,7 +237,7 @@ void printLinkedList(LinkedList*l,void(*fptr)(void*)){
 		while(l->cur!=NULL){
 			if(l->cur->data!=NULL){
 				printf("L %16p > %16p ",l->cur,l->cur->next);
-				fptr((void*)(l->cur->data));
+				cmp((void*)(l->cur->data));
 			}
 			l->cur=l->cur->next;
 		}
@@ -244,11 +265,11 @@ void testLinkedList(void){
 		memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 		addTail(&l,d);
 	}
-	printLinkedList(&l,printData);
+	printLinkedList(&l,(void(*)(void*))printData);
 	for(int i=0-nitr-nitr/2;i<nitr/2;++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
-		res=getNode(&l,compareData,&ndl);
+		res=getNode(&l,(int(*)(void*,void*))compareData,&ndl);
 		if(res!=NULL){
 			printf("info:main:found:    ");
 			printData(res->data);
@@ -260,7 +281,7 @@ void testLinkedList(void){
 	for(int i=nitr/2;i<(nitr+nitr/2);++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
-		res=getNode(&l,compareData,&ndl);
+		res=getNode(&l,(int(*)(void*,void*))compareData,&ndl);
 		if(res!=NULL){
 			printf("info:main:found:    ");
 			printData(res->data);
@@ -272,13 +293,13 @@ void testLinkedList(void){
 	for(int i=nitr;i<nitr+nitr/2;++i){
 		Data ndl=(Data){i,0,0,0};
 		Node*res=NULL;
-		res=getNode(&l,compareData,&ndl);
+		res=getNode(&l,(int(*)(void*,void*))compareData,&ndl);
 		if(res!=NULL){
-			deleteNode(&l,compareData,res->data);
+			deleteNode(&l,(int(*)(void*,void*))compareData,res->data);
 		}else{
 		}
 	}
-	printLinkedList(&l,printData);
+	printLinkedList(&l,(void(*)(void*))printData);
 	deleteLinkedList(&l);
 #ifndef NDEBUG
 	fprintf(stderr,"info:testLinkedList:end\n");
@@ -320,7 +341,7 @@ void*dequeue(Queue*q){
 			ret=NULL;
 		}
 	}else{
-		fprintf(stderr,"error:dequeue:stack NULL\n",q);
+		fprintf(stderr,"error:dequeue:stack NULL\n");
 	}
 	return ret;
 }
@@ -333,11 +354,11 @@ void deleteQueue(Queue*q){
 	fprintf(stderr,"info:deleteQueue:end\n");
 #endif
 }
-void printQueue(Queue*q,void(*fptr)(void*)){
+void printQueue(Queue*q,void(*cmp)(void*)){
 #ifndef NDEBUG
 	fprintf(stderr,"info:printQueue:start\n");
 #endif
-	printLinkedList(q,fptr);
+	printLinkedList(q,cmp);
 #ifndef NDEBUG
 	fprintf(stderr,"info:printQueue:end\n");
 #endif
@@ -369,7 +390,7 @@ void testQueue(void){
 		while((d=dequeue(&q))!=NULL){
 			printf("info:testQueue:dequeued:              ");
 			printData(d);
-			printQueue(&q,printData);
+			printQueue(&q,(void(*)(void*))printData);
 			printf("--------------------------------------------------------------------------------\n");
 			free(d);
 		}
@@ -426,8 +447,8 @@ void*popStack(Stack*s){
 	}
 	return ret;
 }
-void printStack(Stack*s,void(*fptr)(void*)){
-	printLinkedList(s,fptr);
+void printStack(Stack*s,void(*cmp)(void*)){
+	printLinkedList(s,cmp);
 }
 void testStack(void){
 #ifndef NDEBUG
@@ -442,10 +463,9 @@ void testStack(void){
 			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			pushStack(&s,d);
 		}
-		printStack(&s,printData);
+		printStack(&s,(void(*)(void*))printData);
 		deleteStack(&s);
 	}
-
 	{
 		Stack s;
 		initializeStack(&s);
@@ -454,12 +474,12 @@ void testStack(void){
 			memcpy(d,&(Data){i,rand()%100,rand()%100,rand()%100},sizeof(Data));
 			pushStack(&s,d);
 		}
-		printStack(&s,printData);
+		printStack(&s,(void(*)(void*))printData);
 		Data*d=NULL;
 		while((d=popStack(&s))!=NULL){
 			printf("info:testStack:popped:                ");
 			printData(d);
-			printStack(&s,printData);
+			printStack(&s,(void(*)(void*))printData);
 			printf("--------------------------------------------------------------------------------\n");
 			free(d);
 		}
@@ -467,5 +487,127 @@ void testStack(void){
 	}
 #ifndef NDEBUG
 	fprintf(stderr,"info:testStacked:end\n");
+#endif
+}
+/* Tree */
+void initializeTree(TreeNode**t,void*d){
+	if(t!=NULL){
+		if(*t==NULL)*t=(TreeNode*)malloc(sizeof(TreeNode));
+		if(*t!=NULL){
+			(*t)->data=d;
+			(*t)->left=NULL;
+			(*t)->right=NULL;
+		}
+	}
+}
+void insertTreeNode(TreeNode**root,int(*cmp)(void*,void*),void*d){
+	if(root!=NULL&&*root!=NULL&&d!=NULL){
+		TreeNode*n=(TreeNode*)malloc(sizeof(TreeNode));
+		n->data=d;
+		n->left=NULL;
+		n->right=NULL;
+		if(*root==NULL){
+			*root=n;
+			return;
+		}else{
+			while(true){
+				if(cmp((*root)->data,d)>0){
+					if((*root)->left!=NULL){
+						*root=(*root)->left;
+					}else{
+#ifndef NDEBUG
+					fprintf(stderr,"info:insertTreeNode:inserting left  %16p > %16p\n",(*root),n);
+#endif
+						(*root)->left=n;
+						break;
+					}
+				}else{
+					if((*root)->right!=NULL){
+						*root=(*root)->right;
+					}else{
+#ifndef NDEBUG
+					fprintf(stderr,"info:insertTreeNode:inserting right %16p > %16p\n",(*root),n);
+#endif
+						(*root)->right=n;
+						break;
+					}
+				}
+			}
+		}
+	}else{
+		fprintf(stderr,"error:insertNode:invalid arguments\n");
+	}
+}
+void deleteTreeNode(TreeNode*t,TreeNode*n){
+}
+void*findTreeNode(TreeNode*t,int(*cmp)(void*,void*),void*d){
+	return NULL;
+}
+void deleteTree(TreeNode*root){
+	if(root!=NULL){
+#ifndef NDEBUG
+		fprintf(stderr,"info:deleteTree:deallocating [%p:%p]\n",root,root->data);
+#endif
+		if(root->data!=NULL)free(root->data);
+		deleteTree(root->left);
+		deleteTree(root->right);
+		free(root);
+	}
+}
+void traverseTreeInOrder(TreeNode*root,int(*cmp)(void*,void*),void(*work)(void*)){
+	if(root!=NULL&&cmp!=NULL&&work!=NULL){
+		traverseTreeInOrder(root->left,cmp,work);
+		work(root->data);
+		traverseTreeInOrder(root->right,cmp,work);
+	}
+}
+void traverseTreePreOrder(TreeNode*t,int(*cmp)(void*,void*),void(*work)(void*)){
+#ifndef NDEBUG
+	fprintf(stderr,"info:traverseTreePreOrder:start\n");
+#endif
+	if(t!=NULL&&cmp!=NULL&&work!=NULL){
+	}else{
+#ifndef NDEBUG
+		fprintf(stderr,"error::invalid arguments\n");
+#endif
+	}
+#ifndef NDEBUG
+	fprintf(stderr,"info:traverseTreePreOrder:end\n");
+#endif
+}
+void traverseTreePostOrder(TreeNode*t,int(*cmp)(void*,void*),void(*work)(void*)){
+#ifndef NDEBUG
+	fprintf(stderr,"info:traverseTreePostOrder:start\n");
+#endif
+	if(t!=NULL&&cmp!=NULL&&work!=NULL){
+	}else{
+#ifndef NDEBUG
+		fprintf(stderr,"error::invalid arguments\n");
+#endif
+	}
+#ifndef NDEBUG
+	fprintf(stderr,"info:traverseTreePostOrder:end\n");
+#endif
+}
+void testTree(void){
+#ifndef NDEBUG
+	fprintf(stderr,"info:testTree:start\n");
+#endif
+	const int minVal=0;
+	const int maxVal=100;
+	TreeNode*root=NULL;
+	TreeNode*root_=root;
+	
+	initializeTree(&root,memcpy((Data*)malloc(sizeof(Data)),&(Data){0,minVal+rand()%(maxVal-minVal),0,0},sizeof(Data)));
+	for(size_t i=0;i<128;++i){
+		root_=root;
+		Data*d=(Data*)malloc(sizeof(Data));
+		memcpy(d,&(Data){i+1,minVal+rand()%(maxVal-minVal),0,0},sizeof(Data));
+		insertTreeNode(&root_,(int(*)(void*,void*))compareData,d);
+	}
+	traverseTreeInOrder(root,(int(*)(void*,void*))compareData,(void(*)(void*))printData);
+	deleteTree(root);
+#ifndef NDEBUG
+	fprintf(stderr,"info:testTree:end\n");
 #endif
 }
