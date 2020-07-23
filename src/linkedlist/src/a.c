@@ -57,9 +57,9 @@ extern void deleteTreeNode(TreeNode*,TreeNode*);
 extern void*findNode(TreeNode*,int(*)(void*,void*),void*);
 extern void deleteTree(TreeNode*);
 extern void testTree(void);
-extern void traverseTreeInOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
-extern void traverseTreePreOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
-extern void traverseTreePostOrder(TreeNode*,int(*)(void*,void*),void(*)(void*));
+extern void traverseTreeInOrder(TreeNode*,void(*)(void*));
+extern void traverseTreePreOrder(TreeNode*,void(*)(void*));
+extern void traverseTreePostOrder(TreeNode*,void(*)(void*));
 int main(void){
 #ifndef NDEBUG
 	fprintf(stderr,"info:main:start\n");
@@ -571,40 +571,26 @@ void deleteTree(TreeNode*root){
 		free(root);
 	}
 }
-void traverseTreeInOrder(TreeNode*root,int(*cmp)(void*,void*),void(*work)(void*)){
-	if(root!=NULL&&cmp!=NULL&&work!=NULL){
-		traverseTreeInOrder(root->left,cmp,work);
-		work(root->data);
-		traverseTreeInOrder(root->right,cmp,work);
+void traverseTreeInOrder(TreeNode*root,void(*cb)(void*)){
+	if(root!=NULL&&cb!=NULL){
+		traverseTreeInOrder(root->left,cb);
+		cb(root->data);
+		traverseTreeInOrder(root->right,cb);
 	}
 }
-void traverseTreePreOrder(TreeNode*t,int(*cmp)(void*,void*),void(*work)(void*)){
-#ifndef NDEBUG
-	fprintf(stderr,"info:traverseTreePreOrder:start\n");
-#endif
-	if(t!=NULL&&cmp!=NULL&&work!=NULL){
-	}else{
-#ifndef NDEBUG
-		fprintf(stderr,"error::invalid arguments\n");
-#endif
+void traverseTreePreOrder(TreeNode*root,void(*cb)(void*)){
+	if(root!=NULL&&cb!=NULL){
+		cb(root->data);
+		traverseTreePreOrder(root->left,cb);
+		traverseTreePreOrder(root->right,cb);
 	}
-#ifndef NDEBUG
-	fprintf(stderr,"info:traverseTreePreOrder:end\n");
-#endif
 }
-void traverseTreePostOrder(TreeNode*t,int(*cmp)(void*,void*),void(*work)(void*)){
-#ifndef NDEBUG
-	fprintf(stderr,"info:traverseTreePostOrder:start\n");
-#endif
-	if(t!=NULL&&cmp!=NULL&&work!=NULL){
-	}else{
-#ifndef NDEBUG
-		fprintf(stderr,"error::invalid arguments\n");
-#endif
+void traverseTreePostOrder(TreeNode*root,void(*cb)(void*)){
+	if(root!=NULL&&cb!=NULL){
+		traverseTreePostOrder(root->left,cb);
+		traverseTreePostOrder(root->right,cb);
+		cb(root->data);
 	}
-#ifndef NDEBUG
-	fprintf(stderr,"info:traverseTreePostOrder:end\n");
-#endif
 }
 void testTree(void){
 #ifndef NDEBUG
@@ -617,10 +603,21 @@ void testTree(void){
 		insertTreeNode(
 			&root,
 			(int(*)(void*,void*))compareData,
-			memcpy((Data*)malloc(sizeof(Data)),&(Data){i,minVal+rand()%(maxVal-minVal),0,42},sizeof(Data))
+			memcpy((Data*)malloc(sizeof(Data)),&(Data){minVal+rand()%(maxVal-minVal),i,0,0},sizeof(Data))
 		);
 	}
-	traverseTreeInOrder(root,(int(*)(void*,void*))compareData,(void(*)(void*))printData);
+#ifndef NDEBUG
+	fprintf(stderr,"info:testTree:traverseTreeInOrder:\n");
+#endif
+	traverseTreeInOrder(root,(void(*)(void*))printData);
+#ifndef NDEBUG
+	fprintf(stderr,"info:testTree:traverseTreePreOrder:\n");
+#endif
+	traverseTreePreOrder(root,(void(*)(void*))printData);
+#ifndef NDEBUG
+	fprintf(stderr,"info:testTree:traverseTreePostOrder:\n");
+#endif
+	traverseTreePostOrder(root,(void(*)(void*))printData);
 	deleteTree(root);
 #ifndef NDEBUG
 	fprintf(stderr,"info:testTree:end\n");
