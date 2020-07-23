@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<time.h>
-#define NITR  32
+#define NITR 32
 typedef struct Data{
 	size_t id;
 	int x;
