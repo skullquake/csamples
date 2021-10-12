@@ -47,13 +47,3 @@ clean:
 	@rm -r ./bin
 run:
 	$(BIN)
-lsvar:
-	@echo $(BIN)
-	@echo $(OBJS)
-	@echo $(SRC)
-	@echo $(SRCDIR)
-	@echo $(PREFIX)
-
-
-
-

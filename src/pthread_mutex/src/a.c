@@ -46,5 +46,6 @@ int main(){
 	printf("thread:%lx:t1:ret:%d\n",pthread_self(),*ret);
 	free(ret);
 	printf("thread:%lx:end\n",pthread_self());
+	pthread_mutex_destroy(&lock);
 	exit(0);
 }
